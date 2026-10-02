@@ -1,0 +1,2449 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>GTM Engineer Demo Deck</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #09090b;
+    --surface: #17171a;
+    --surface-raised: #1c1c1f;
+    --border: #27272a;
+    --border-soft: #3f3f46;
+    --text: #f4f4f5;
+    --text-strong: #fafafa;
+    --text-muted: #a1a1aa;
+    --text-faint: #71717a;
+    --accent: #10b981;
+    --accent-strong: #34d399;
+    --accent-dim: #065f46;
+    --neg: #f87171;
+    --accent-soft: rgba(16,185,129,0.12);
+    --accent-line: rgba(16,185,129,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* ---------- chrome: mark, counter, arrows ---------- */
+  .chrome-mark {
+    position: absolute;
+    top: 28px;
+    left: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+  }
+  .mark-chip {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #6ee7b7, var(--accent) 55%, #065f46);
+    flex-shrink: 0;
+  }
+  .mark-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.1px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .mark-label b { color: var(--text-muted); font-weight: 500; }
+
+  .chrome-counter {
+    position: absolute;
+    bottom: 28px;
+    left: 32px;
+    z-index: 20;
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 15px;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    margin: -6px -8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .chrome-counter:hover { background: var(--surface); }
+  .chrome-counter .cur { color: var(--text-muted); font-weight: 500; }
+  .chrome-counter .caret { color: var(--text-faint); margin-left: 4px; }
+
+  .slide-picker {
+    position: absolute;
+    bottom: 64px;
+    left: 32px;
+    z-index: 30;
+    width: 300px;
+    max-height: min(420px, 60vh);
+    overflow-y: auto;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.45);
+  }
+  .slide-picker-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 15.6px;
+    font-family: 'Geist Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  .slide-picker-item:hover { background: var(--accent-soft); color: var(--text-strong); }
+  .slide-picker-item.current { color: var(--accent-strong); background: var(--accent-soft); }
+  .slide-picker-item .pnum {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.1px;
+    color: var(--text-faint);
+    flex-shrink: 0;
+    width: 18px;
+    font-variant-numeric: tabular-nums;
+  }
+  .slide-picker-item.current .pnum { color: var(--accent-strong); }
+  .slide-picker-item .plabel { flex-shrink: 0; }
+  .slide-picker-item .pdim { color: var(--text-faint); font-size: 13.1px; }
+
+  .chrome-progress {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    background: var(--accent);
+    z-index: 20;
+    transition: width 0.35s ease;
+  }
+
+  .chrome-nav {
+    position: absolute;
+    bottom: 24px;
+    right: 32px;
+    z-index: 20;
+    display: flex;
+    gap: 8px;
+  }
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    border: 1px solid var(--border-soft);
+    background: var(--surface);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .nav-btn:hover { border-color: var(--accent-line); color: var(--accent-strong); background: var(--surface-raised); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .nav-btn:disabled:hover { border-color: var(--border-soft); color: var(--text-muted); background: var(--surface); }
+  .nav-btn svg { width: 16px; height: 16px; }
+
+  .click-zone {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 15%;
+    z-index: 10;
+    cursor: pointer;
+  }
+  .click-zone.left { left: 0; }
+  .click-zone.right { right: 0; }
+
+  /* ---------- slides ---------- */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 100px 70px;
+    opacity: 0;
+    transform: translateX(16px);
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    overflow-y: auto;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.exit-left { transform: translateX(-16px); }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 14.4px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+  h1.slide-title {
+    font-size: clamp(32.5px, 4.5vw, 50px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 28px;
+    color: var(--text-strong);
+    text-wrap: balance;
+    flex-shrink: 0;
+  }
+
+  /* ---------- agenda step list (slide 1) ---------- */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    max-width: 560px;
+  }
+  .step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    position: relative;
+    padding-bottom: 28px;
+  }
+  .step-row:last-child { padding-bottom: 0; }
+  .step-row:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 34px;
+    bottom: 4px;
+    width: 1px;
+    background: var(--border-soft);
+  }
+  .step-chip {
+    width: 31px;
+    height: 31px;
+    border-radius: 9px;
+    border: 1px solid var(--accent-line);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 500;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .step-text { padding-top: 4px; }
+  .step-name {
+    font-size: 21.2px;
+    font-weight: 500;
+    color: var(--text-strong);
+    margin: 0 0 3px;
+  }
+  .step-desc {
+    font-size: 16.9px;
+    color: var(--text-faint);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ---------- ICP callout + fact/consequence rows (slide 2) ---------- */
+  .icp-callout {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border: 1px solid var(--accent-line);
+    background: var(--accent-soft);
+    border-radius: 10px;
+    font-size: 15.6px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    max-width: 660px;
+    margin-bottom: 34px;
+  }
+  .icp-callout .icp-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-strong);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .icp-callout b { color: var(--accent-strong); font-weight: 500; }
+
+  .fact-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 780px;
+  }
+  .fact-row {
+    display: grid;
+    grid-template-columns: 280px 24px 1fr;
+    align-items: center;
+    gap: 6px;
+  }
+  .fact-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .fact-card.standalone { max-width: 620px; }
+  .fact-tag {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    margin-bottom: 7px;
+    display: block;
+  }
+  .fact-body {
+    font-size: 15.6px;
+    color: var(--text);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .fact-arrow {
+    display: flex;
+    justify-content: center;
+    color: var(--border-soft);
+  }
+  .fact-arrow svg { width: 15px; height: 15px; }
+  .consequence {
+    font-size: 15.6px;
+    color: var(--text-faint);
+    line-height: 1.55;
+    padding-left: 2px;
+  }
+  .consequence b { color: var(--text-muted); font-weight: 500; }
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border-soft);
+    color: var(--text-muted);
+    background: var(--surface-raised);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .fact-row { grid-template-columns: 1fr; }
+    .fact-arrow { transform: rotate(90deg); justify-content: flex-start; padding-left: 10px; }
+  }
+
+  /* ---------- pain points (slide 3) ---------- */
+  .pain-grid {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+  }
+  .stat-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 230px;
+  }
+  .stat-num {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 67.5px;
+    font-weight: 600;
+    color: var(--accent-strong);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-label {
+    font-size: 15.6px;
+    color: var(--text-faint);
+    margin-top: 12px;
+    line-height: 1.5;
+    max-width: 210px;
+  }
+  .breaks-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    flex: 1;
+    min-width: 260px;
+  }
+  .breaks-title {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 13px;
+  }
+  .breaks-list { display: flex; flex-direction: column; gap: 10px; }
+  .breaks-item { display: flex; align-items: center; gap: 9px; font-size: 15.6px; color: var(--text); }
+  .breaks-item .x-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-faint); flex-shrink: 0; }
+
+  .step-chain { display: flex; align-items: center; flex-wrap: wrap; row-gap: 10px; margin-bottom: 22px; }
+  .step-chain .step {
+    background: var(--surface-raised);
+    border: 1px solid var(--border-soft);
+    border-radius: 9px;
+    padding: 9px 14px;
+    font-size: 15px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .step-chain .chain-arrow { color: var(--border-soft); margin: 0 8px; flex-shrink: 0; display: flex; }
+  .step-chain .chain-arrow svg { width: 14px; height: 14px; display: block; }
+  .step-chain-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 12px;
+  }
+
+  .source-notes { display: flex; gap: 24px; flex-wrap: wrap; }
+  .source-note {
+    font-size: 15px;
+    color: var(--text-faint);
+    max-width: 320px;
+    line-height: 1.5;
+    padding-left: 12px;
+    border-left: 2px solid var(--border-soft);
+  }
+  .source-note b { color: var(--text-muted); font-weight: 500; }
+
+  /* ---------- platform v1 -> v2 (slide 4) ---------- */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: 1fr 56px 1fr;
+    gap: 8px;
+    align-items: stretch;
+    max-width: 900px;
+  }
+  .stage-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .stage-card.issue { border-color: rgba(245, 158, 11, 0.22); }
+  .stage-card.fix { border-color: var(--accent-line); }
+  .stage-tag {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.1px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .stage-tag.issue { color: #fbbf24; }
+  .stage-tag.fix { color: var(--accent-strong); }
+  .stage-intro { font-size: 15.6px; color: var(--text-muted); line-height: 1.5; margin: -4px 0 0; }
+  .stage-list { display: flex; flex-direction: column; gap: 10px; }
+  .stage-item { display: flex; gap: 9px; align-items: flex-start; font-size: 15.6px; color: var(--text); line-height: 1.5; }
+  .stage-item svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
+  .stage-item.issue svg { color: #f59e0b; }
+  .stage-item.fix svg { color: var(--accent-strong); }
+  .platform-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-faint);
+  }
+  .platform-divider svg { width: 22px; height: 22px; }
+  .platform-divider span {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 820px) {
+    .platform-grid { grid-template-columns: 1fr; }
+    .platform-divider { flex-direction: row; padding: 6px 0; }
+    .platform-divider svg { transform: rotate(90deg); }
+  }
+
+  /* ---------- glossary + ship gate (slide 5) ---------- */
+  .section-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 12px;
+  }
+  .glossary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px;
+    max-width: 900px;
+    margin-bottom: 18px;
+  }
+  .term-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 14px 16px;
+  }
+  .term-name {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 15px;
+    color: var(--accent-strong);
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  .term-def { font-size: 15px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+  .term-def-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .term-def-list li { font-size: 13.1px; color: var(--text-muted); line-height: 1.45; }
+  .term-def-list .cond { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--accent-strong); font-weight: 500; }
+
+  .ship-gate {
+    background: var(--surface);
+    border: 1px solid var(--accent-line);
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 640px;
+  }
+  .gate-items { display: flex; flex-direction: column; gap: 4px; }
+  .gate-item { display: flex; gap: 9px; align-items: flex-start; font-size: 15.6px; color: var(--text); line-height: 1.5; padding: 6px 0; }
+  .gate-item svg { width: 14px; height: 14px; color: var(--accent-strong); flex-shrink: 0; margin-top: 2px; }
+  .gate-and {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-left: 23px;
+  }
+
+  /* ---------- key vs overlay compare (slide 6) ---------- */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+    max-width: 840px;
+  }
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .compare-tag {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    font-weight: 500;
+  }
+  .compare-def { font-size: 16.2px; color: var(--text-muted); line-height: 1.55; margin: 0; }
+  .chip-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: -2px;
+  }
+
+  /* ---------- rate table (slide 7) ---------- */
+  .rate-table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    max-width: 920px;
+  }
+  .rate-table-card table { width: 100%; border-collapse: collapse; }
+  .rate-table-card thead th {
+    text-align: left;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 500;
+    padding: 10px 18px;
+    background: rgba(0,0,0,0.28);
+    border-bottom: 1px solid var(--border);
+  }
+  .rate-table-card thead th.num, .rate-table-card tbody td.num { text-align: right; }
+  .rate-table-card tbody td {
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15.6px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+  .rate-table-card tbody tr:last-child td { border-bottom: none; }
+  .rate-table-card tbody tr.floor-row td:first-child { box-shadow: inset 3px 0 0 #f59e0b; }
+  .rt-seg { font-weight: 500; color: var(--text-strong); }
+  .rt-floor-pill {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.2px;
+    letter-spacing: 0.06em;
+    color: #fbbf24;
+    border: 1px solid rgba(245,158,11,0.35);
+    background: rgba(245,158,11,0.1);
+    border-radius: 10px;
+    padding: 1px 7px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .rt-num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; color: var(--text-muted); }
+  .rt-num.hero { color: var(--accent-strong); font-weight: 600; font-size: 16.9px; }
+  .rt-badge {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.8px;
+    color: var(--text-muted);
+    background: var(--surface-raised);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 2px 10px;
+    white-space: nowrap;
+  }
+
+  /* ---------- connect-rate formula + floor chart (slide 8) ---------- */
+  .formula-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 20px;
+    padding: 16px 22px;
+    background: var(--surface);
+    border: 1px solid var(--accent-line);
+    border-radius: 12px;
+    max-width: 720px;
+    margin-bottom: 22px;
+  }
+  .formula-strip .term { font-weight: 600; color: var(--text-strong); }
+  .formula-strip .op { color: var(--text-faint); font-weight: 400; }
+  .formula-strip .eq { color: var(--accent-strong); font-weight: 600; }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px 8px;
+    max-width: 820px;
+  }
+  .chart-card svg { width: 100%; height: auto; display: block; }
+  .chart-card.wide { max-width: 1220px; position: relative; }
+  .wf-hit { cursor: crosshair; }
+  .wf-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 14.4px;
+    color: var(--text-strong);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    z-index: 40;
+    opacity: 0;
+    transition: opacity 0.1s;
+  }
+  .wf-tooltip.show { opacity: 1; }
+  .chart-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 4px; }
+  .chart-legend .item { display: flex; align-items: center; gap: 7px; font-size: 14.4px; color: var(--text-muted); }
+  .chart-legend .swatch { width: 14px; height: 2.5px; border-radius: 2px; }
+  .chart-caption {
+    font-size: 13.8px;
+    color: var(--text-faint);
+    margin: 10px 0 2px;
+    line-height: 1.5;
+  }
+
+  /* ---------- points tiles (slide 9) ---------- */
+  .points-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    max-width: 860px;
+  }
+  .ptile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .ptile.highlight { border-color: var(--accent-line); }
+  .ptile-tag {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.1px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .ptile-value {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 50px;
+    font-weight: 600;
+    color: var(--accent-strong);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .ptile-value.text { font-size: 23.8px; }
+  .ptile-desc { font-size: 15px; color: var(--text-faint); line-height: 1.5; margin: 0; }
+
+  /* ---------- picker filters + priority (slides 10-11) ---------- */
+  .two-col { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 20px; }
+  .two-col > .breaks-card { flex: 1; min-width: 300px; }
+  .two-col .breaks-item { font-size: 15px; align-items: flex-start; }
+  .two-col .breaks-item .muted { color: var(--text-faint); }
+  .footnote-row { display: flex; gap: 22px; flex-wrap: wrap; }
+  .footnote {
+    font-size: 14.4px;
+    color: var(--text-faint);
+    max-width: 360px;
+    line-height: 1.5;
+    padding-left: 12px;
+    border-left: 2px solid var(--border-soft);
+  }
+  .footnote b { color: var(--text-muted); font-weight: 500; }
+
+  .fallback-card {
+    border: 1px dashed var(--border-soft);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 580px;
+    margin-top: 24px;
+  }
+  .fallback-title {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .fallback-branch { display: flex; gap: 9px; align-items: flex-start; font-size: 15.6px; color: var(--text-muted); line-height: 1.5; }
+  .fallback-branch b { color: var(--text-strong); font-weight: 500; }
+  .fallback-branch svg { width: 13px; height: 13px; margin-top: 3px; flex-shrink: 0; color: var(--text-faint); }
+
+  /* ---------- pipeline transition slides ---------- */
+  .transition-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: auto;
+    gap: 28px;
+    width: 100%;
+  }
+  .transition-eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.8px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .transition-title {
+    font-size: clamp(37.5px, 5.5vw, 57.5px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-strong);
+    margin: 0;
+  }
+  .pipeline-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    row-gap: 16px;
+  }
+  .pipe-box {
+    width: 160px;
+    height: 104px;
+    border-radius: 14px;
+    border: 1px solid var(--border-soft);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 14px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 15.6px;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+    transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .pipe-box.active {
+    border-color: var(--accent-strong);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-weight: 600;
+    box-shadow: 0 0 0 1px var(--accent-line), 0 0 28px rgba(16,185,129,0.22);
+    transform: scale(1.08);
+  }
+  .pipe-arrow { color: var(--border-soft); margin: 0 14px; flex-shrink: 0; display: flex; }
+  .pipe-arrow svg { width: 18px; height: 18px; }
+  .transition-desc {
+    font-size: 16.2px;
+    color: var(--text-faint);
+    max-width: 480px;
+    line-height: 1.55;
+  }
+  @media (max-width: 720px) {
+    .pipe-arrow { transform: rotate(90deg); margin: 4px 0; }
+    .pipe-box { width: 200px; }
+  }
+
+  /* ---------- sequencer prep cards ---------- */
+  .seq-detail { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+  .seq-branch { display: flex; gap: 9px; align-items: flex-start; font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+  .seq-branch svg { width: 13px; height: 13px; margin-top: 3px; flex-shrink: 0; }
+  .seq-branch.yes svg { color: var(--accent-strong); }
+  .seq-branch.no svg { color: #f59e0b; }
+  .seq-branch b { color: var(--text-strong); font-weight: 500; }
+  .tag-key {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.8px;
+    font-weight: 600;
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    margin-right: 2px;
+  }
+  .scope-chip {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.05em;
+    color: #fbbf24;
+    border: 1px solid rgba(245,158,11,0.35);
+    background: rgba(245,158,11,0.1);
+    border-radius: 20px;
+    padding: 2px 9px;
+    white-space: nowrap;
+  }
+
+  /* ---------- demo before/after workflow ---------- */
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 56px 1fr;
+    gap: 8px;
+    align-items: stretch;
+    max-width: 980px;
+  }
+  .demo-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .demo-col.before { border-color: rgba(245, 158, 11, 0.22); }
+  .demo-col.after { border-color: var(--accent-line); }
+  .demo-tag {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13.1px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .demo-tag.before { color: #fbbf24; }
+  .demo-tag.after { color: var(--accent-strong); }
+  .demo-intro { font-size: 15.6px; color: var(--text-muted); line-height: 1.5; margin: -4px 0 0; }
+  .flow-col { display: flex; flex-direction: column; }
+  .flow-step {
+    background: var(--surface-raised);
+    border: 1px solid var(--border-soft);
+    border-radius: 9px;
+    padding: 9px 14px;
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+  .demo-col.after .flow-step { color: var(--text); }
+  .flow-arrow-v { display: flex; justify-content: center; padding: 3px 0; color: var(--border-soft); }
+  .flow-arrow-v svg { width: 14px; height: 14px; display: block; }
+  .demo-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-faint);
+  }
+  .demo-divider svg { width: 22px; height: 22px; }
+  .demo-divider span {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11.9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 820px) {
+    .demo-grid { grid-template-columns: 1fr; }
+    .demo-divider { flex-direction: row; padding: 6px 0; }
+    .demo-divider svg { transform: rotate(90deg); }
+  }
+
+  /* ---------- placeholder slide state ---------- */
+  .placeholder-body {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--text-faint);
+    font-size: 16.2px;
+    border: 1px dashed var(--border-soft);
+    border-radius: 12px;
+    padding: 16px 20px;
+    max-width: 460px;
+  }
+  .placeholder-body .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-faint);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 720px) {
+    .slide { padding: 70px 20px 64px; }
+    .chrome-mark { left: 20px; }
+    .chrome-counter { left: 20px; }
+    .chrome-nav { right: 20px; }
+    .click-zone { width: 20%; }
+  }
+</style>
+
+<div class="deck" id="deck">
+
+  <div class="chrome-mark">
+    <div class="mark-chip"></div>
+    <span class="mark-label"><b>GTM Engineer</b> &middot; Demo</span>
+  </div>
+
+  <div class="click-zone left" id="zoneLeft"></div>
+  <div class="click-zone right" id="zoneRight"></div>
+
+  <!-- SLIDE 1 : Agenda -->
+  <section class="slide active" data-slide="1">
+    <div class="eyebrow">01 / Agenda</div>
+    <h1 class="slide-title">What we'll cover</h1>
+    <div class="steps">
+      <div class="step-row">
+        <div class="step-chip">01</div>
+        <div class="step-text">
+          <p class="step-name">Context</p>
+          <p class="step-desc">What our sales process actually looks like today.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">02</div>
+        <div class="step-text">
+          <p class="step-name">Pain points</p>
+          <p class="step-desc">Where the manual work goes, and what it costs.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">03</div>
+        <div class="step-text">
+          <p class="step-name">Process in building this</p>
+          <p class="step-desc">Happy to go deeper on any of this after the demo.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">04</div>
+        <div class="step-text">
+          <p class="step-name">Demo</p>
+          <p class="step-desc">The app, live.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">05</div>
+        <div class="step-text">
+          <p class="step-name">Reporting</p>
+          <p class="step-desc">Visibility into what's working, and what isn't.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">06</div>
+        <div class="step-text">
+          <p class="step-name">Questions</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 : Context -->
+  <section class="slide" data-slide="2">
+    <div class="eyebrow">02 / Context</div>
+    <h1 class="slide-title">Who we sell to at Double</h1>
+
+    <div class="fact-rows">
+      <div class="fact-card standalone">
+        <span class="fact-tag">Stage 1 &middot; Company fit</span>
+        <p class="fact-body">Outsourced Accounting, Bookkeeping, CAS/CAAS, Fractional CFO, Business Services: not tax+audit-only, not firms under an umbrella with no bookkeeping.</p>
+      </div>
+
+      <div class="fact-card standalone">
+        <span class="fact-tag">Stage 2 &middot; Contact fit</span>
+        <p class="fact-body">No best title. Small firms: partner/bookkeeper. Mid-size: several senior managers, unclear DM power. Large firms: practice leaders / CIO / AI lead.</p>
+      </div>
+
+      <div class="fact-card standalone">
+        <span class="fact-tag">Source type</span>
+        <div class="chip-row">
+          <span class="chip">Leads</span>
+          <span class="chip">Prior-opp accounts</span>
+          <span class="chip">Cold</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 : Pain Points -->
+  <section class="slide" data-slide="3">
+    <div class="eyebrow">03 / Pain Points</div>
+    <h1 class="slide-title">Where the time actually goes</h1>
+
+    <div class="pain-grid">
+      <div class="stat-tile">
+        <div class="stat-num">20&ndash;25%</div>
+        <div class="stat-label">of selling time spent on manual Stage 1 + Stage 2 navigation, per account.</div>
+      </div>
+      <div class="breaks-card">
+        <div class="breaks-title">What breaks along the way</div>
+        <div class="breaks-list">
+          <div class="breaks-item"><span class="x-dot"></span>Website not working</div>
+          <div class="breaks-item"><span class="x-dot"></span>Company acquired</div>
+          <div class="breaks-item"><span class="x-dot"></span>Duplicate record in Salesforce</div>
+          <div class="breaks-item"><span class="x-dot"></span>Someone else already working it</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-chain-label">And that's before you've disqualified anything</div>
+    <div class="step-chain">
+      <span class="step">Open contact bio</span>
+      <span class="chain-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="step">Create &amp; enrich contact</span>
+      <span class="chain-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="step">Write notes</span>
+      <span class="chain-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      <span class="step">Sequence</span>
+    </div>
+
+    <div class="source-notes">
+      <div class="source-note"><b>Leads</b> still need Stage 1 + Stage 2 run: a lead isn't pre-qualified.</div>
+      <div class="source-note"><b>Prior-opp accounts</b> need fresh research, plus finding a new person if the old contact left.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4 : Platform -->
+  <section class="slide" data-slide="4">
+    <div class="eyebrow">04 / Platform</div>
+    <h1 class="slide-title">From crawler to architecture</h1>
+
+    <div class="platform-grid">
+      <div class="stage-card issue">
+        <span class="stage-tag issue">V1 &middot; Web crawler</span>
+        <p class="stage-intro">Ran Stage 1 + Stage 2 for me, in bulk batches of 10.</p>
+        <div class="stage-list">
+          <div class="stage-item issue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            No time to review batches: progress got lost
+          </div>
+          <div class="stage-item issue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            Selling time went up, meetings booked didn't
+          </div>
+          <div class="stage-item issue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            Hard to design around prior-opp accounts
+          </div>
+          <div class="stage-item issue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            Kept chasing small deals and unresponsive people
+          </div>
+          <div class="stage-item issue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            Needed a bigger architecture
+          </div>
+        </div>
+      </div>
+
+      <div class="platform-divider">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span>rebuilt</span>
+      </div>
+
+      <div class="stage-card fix">
+        <span class="stage-tag fix">V2 &middot; Ranker + architecture</span>
+        <p class="stage-intro">Prioritize by expected value, not by batch order.</p>
+        <div class="stage-list">
+          <div class="stage-item fix">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            A ranker that scores every contact before enrolling anyone
+          </div>
+          <div class="stage-item fix">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            Architecture with memory, edge-case workflows, and more tools connected
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4b : Architecture diagram -->
+  <section class="slide" data-slide="4b">
+    <div class="eyebrow">04b / Architecture</div>
+    <h1 class="slide-title">How the pieces talk to each other</h1>
+
+    <div class="chart-card">
+      <svg viewBox="0 0 900 420" role="img" aria-label="Architecture diagram: Salesforce flows through Snowflake and Postgres into an orchestrator, which enrolls into Nooks and writes back to Salesforce">
+        <defs>
+          <marker id="mArrowMuted" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" style="fill:var(--text-muted)" />
+          </marker>
+          <marker id="mArrowAccent" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent-strong)" />
+          </marker>
+        </defs>
+
+        <!-- boxes (drawn first so arrow labels always render on top) -->
+        <g>
+          <rect x="20" y="110" width="140" height="64" rx="12" style="fill:var(--surface); stroke:var(--border-soft); stroke-width:1.2" />
+          <text x="90" y="138" text-anchor="middle" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Salesforce</text>
+          <text x="90" y="156" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">source of truth</text>
+        </g>
+        <g>
+          <rect x="210" y="110" width="140" height="64" rx="12" style="fill:var(--surface); stroke:var(--border-soft); stroke-width:1.2" />
+          <text x="280" y="138" text-anchor="middle" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Snowflake</text>
+          <text x="280" y="156" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">warehouse</text>
+        </g>
+        <g>
+          <rect x="400" y="110" width="140" height="64" rx="12" style="fill:var(--surface); stroke:var(--border-soft); stroke-width:1.2" />
+          <text x="470" y="138" text-anchor="middle" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Postgres</text>
+          <text x="470" y="156" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">app's local mirror</text>
+        </g>
+        <g>
+          <rect x="590" y="110" width="140" height="64" rx="12" style="fill:var(--accent-soft); stroke:var(--accent-strong); stroke-width:1.4" />
+          <text x="660" y="138" text-anchor="middle" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--accent-strong);">Orchestrator</text>
+          <text x="660" y="156" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.5px; fill:var(--accent-strong); opacity:0.85;">scores, picks, sequences</text>
+        </g>
+        <g>
+          <rect x="590" y="330" width="140" height="64" rx="12" style="fill:var(--surface); stroke:var(--border-soft); stroke-width:1.2" />
+          <text x="660" y="358" text-anchor="middle" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Nooks</text>
+          <text x="660" y="376" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">dialer + sequences</text>
+        </g>
+
+        <!-- forward data pipeline (existing infra) -->
+        <line x1="160" y1="142" x2="208" y2="142" style="stroke:var(--text-muted); stroke-width:1.6" marker-end="url(#mArrowMuted)" />
+        <text x="184" y="98" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Openflow, weekly</text>
+
+        <line x1="350" y1="142" x2="398" y2="142" style="stroke:var(--text-muted); stroke-width:1.6" marker-end="url(#mArrowMuted)" />
+        <text x="374" y="98" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">sync_from_snowflake</text>
+
+        <line x1="540" y1="142" x2="588" y2="142" style="stroke:var(--text-muted); stroke-width:1.6" marker-end="url(#mArrowMuted)" />
+        <text x="564" y="98" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">contacts + rates</text>
+
+        <!-- what the app does (emerald) -->
+        <line x1="660" y1="174" x2="660" y2="328" style="stroke:var(--accent-strong); stroke-width:2" marker-end="url(#mArrowAccent)" />
+        <text x="676" y="255" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--accent-strong); font-weight:600;">enroll</text>
+
+        <path d="M600,330 C560,282 560,222 600,176" style="fill:none; stroke:var(--accent-strong); stroke-width:1.7; stroke-dasharray:5 4; opacity:0.85" marker-end="url(#mArrowAccent)" />
+        <text x="514" y="253" text-anchor="end" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--accent-strong);">sequence state, live read</text>
+
+        <path d="M660,110 C660,34 90,34 90,108" style="fill:none; stroke:var(--accent-strong); stroke-width:1.7; stroke-dasharray:5 4; opacity:0.85" marker-end="url(#mArrowAccent)" />
+        <text x="375" y="26" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--accent-strong);">notes + tag write-back</text>
+      </svg>
+      <div class="chart-legend" style="justify-content:center;">
+        <div class="item"><span class="swatch" style="background:var(--text-muted);"></span>Existing data pipeline</div>
+        <div class="item"><span class="swatch" style="background:var(--accent-strong);"></span>What I built</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSITION : into Data Analysis -->
+  <section class="slide">
+    <div class="transition-wrap">
+      <span class="transition-eyebrow">Up next</span>
+      <h1 class="transition-title">Data Analysis</h1>
+      <div class="pipeline-row">
+        <div class="pipe-box active">Data<br>Analysis</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box">Ranker</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box">Contact<br>Picker</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box">Sequencer</div>
+      </div>
+      <p class="transition-desc">Before any of this can score or sequence a contact, it starts with defining what we're even measuring.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 5 : Data Analysis - Gather Data (variables) -->
+  <section class="slide" data-slide="5">
+    <div class="eyebrow">05 / Data Analysis</div>
+    <h1 class="slide-title">Gathering the data</h1>
+
+    <div class="section-label">Define variables, first</div>
+    <div class="glossary-grid">
+      <div class="term-card">
+        <div class="term-name">Work period</div>
+        <p class="term-def">One completed span of active ownership on a contact: the trust unit. Never a period still in progress.</p>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Connect rate: P(connect)</div>
+        <ul class="term-def-list">
+          <li><span class="cond">connect_dial &le; X</span> &rarr; success, sequence terminates</li>
+          <li><span class="cond">connect_dial &gt; X</span> (late) &rarr; qualified failure at current ordinal, then censor</li>
+          <li><span class="cond">no connect, dials &ge; X</span> &rarr; qualified failure, sequence continues</li>
+          <li><span class="cond">no connect, dials &lt; X</span> &rarr; uninformative, skip, sequence continues</li>
+        </ul>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Meeting rate</div>
+        <p class="term-def">Qualified meetings per work period, counted once even across multiple touches.</p>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Qualified meeting</div>
+        <p class="term-def">A meeting that clears the bar to count: not just any calendar hold.</p>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Inner / outer loop</div>
+        <p class="term-def">Inner: chase dials after the first connect. Outer: the ranked cadence of first-touch dials.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Ship a rate if</div>
+    <div class="ship-gate">
+      <div class="gate-items">
+        <div class="gate-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          Sample is large enough, and confidence intervals between cells don't overlap
+        </div>
+        <div class="gate-and">and</div>
+        <div class="gate-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          It changes a prioritization decision: who I'm wasting time on
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSITION : into Ranker -->
+  <section class="slide">
+    <div class="transition-wrap">
+      <span class="transition-eyebrow">Up next</span>
+      <h1 class="transition-title">Ranker</h1>
+      <div class="pipeline-row">
+        <div class="pipe-box">Data<br>Analysis</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box active">Ranker</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box">Contact<br>Picker</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box">Sequencer</div>
+      </div>
+      <p class="transition-desc">With the definitions set, here's how they turn into an actual score per contact.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 6 : Ranker - Keys & Overlays -->
+  <section class="slide" data-slide="6">
+    <div class="eyebrow">06 / Ranker</div>
+    <h1 class="slide-title">Key vs. overlay</h1>
+
+    <div class="compare-grid">
+      <div class="compare-card">
+        <span class="compare-tag">Key / Cell</span>
+        <p class="compare-def">A distinct cohort with its own rate, EV, and sequence policy.</p>
+        <span class="chip-label">Shipped examples</span>
+        <div class="chip-row">
+          <span class="chip">prior_opp_state</span>
+          <span class="chip">none_prior_interested</span>
+          <span class="chip">none_event_first</span>
+        </div>
+      </div>
+
+      <div class="compare-card">
+        <span class="compare-tag">Overlay</span>
+        <p class="compare-def">Not mutually exclusive, not big volume: changes exactly one rate in the equation.</p>
+        <span class="chip-label">Shipped examples</span>
+        <div class="chip-row">
+          <span class="chip">ipa_top_500</span>
+          <span class="chip">silent_streak</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7 : Rate table -->
+  <section class="slide" data-slide="7">
+    <div class="eyebrow">07 / Ranker</div>
+    <h1 class="slide-title">The rate table</h1>
+
+    <div class="rate-table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th>Sequence</th>
+            <th class="num">Connect&nbsp;@ cap</th>
+            <th class="num">Meeting rate</th>
+            <th class="num">EV / enroll</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="rt-seg">closed_lost</td>
+            <td><span class="rt-badge">seq_10 &middot; 10 steps</span></td>
+            <td class="num rt-num">86.73%</td>
+            <td class="num rt-num">23.37%</td>
+            <td class="num rt-num hero">20.27%</td>
+          </tr>
+          <tr>
+            <td class="rt-seg">churned_customer</td>
+            <td><span class="rt-badge">seq_4 &middot; 4 steps</span></td>
+            <td class="num rt-num">78.40%</td>
+            <td class="num rt-num">15.52%</td>
+            <td class="num rt-num hero">12.17%</td>
+          </tr>
+          <tr>
+            <td class="rt-seg">none_event_first</td>
+            <td><span class="rt-badge">seq_6 &middot; 6 steps</span></td>
+            <td class="num rt-num">87.03%</td>
+            <td class="num rt-num">12.24%</td>
+            <td class="num rt-num hero">10.65%</td>
+          </tr>
+          <tr>
+            <td class="rt-seg">disqualified</td>
+            <td><span class="rt-badge">seq_6 &middot; 6 steps</span></td>
+            <td class="num rt-num">82.49%</td>
+            <td class="num rt-num">12.69%</td>
+            <td class="num rt-num hero">10.47%</td>
+          </tr>
+          <tr>
+            <td class="rt-seg">none_prior_interested</td>
+            <td><span class="rt-badge">seq_6 &middot; 6 steps</span></td>
+            <td class="num rt-num">90.55%</td>
+            <td class="num rt-num">8.50%</td>
+            <td class="num rt-num hero">7.70%</td>
+          </tr>
+          <tr class="floor-row">
+            <td class="rt-seg">none_fresh<span class="rt-floor-pill">FLOOR</span></td>
+            <td><span class="rt-badge">seq_4 &middot; 4 steps</span></td>
+            <td class="num rt-num">80.15%</td>
+            <td class="num rt-num">5.94%</td>
+            <td class="num rt-num hero">4.76%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SLIDE 8 : Connect Rate formula + floor -->
+  <section class="slide" data-slide="8">
+    <div class="eyebrow">08 / Ranker</div>
+    <h1 class="slide-title">How many dials is it worth</h1>
+
+    <div class="formula-strip">
+      <span class="term">P(connect | cap, streak)</span>
+      <span class="op">&times;</span>
+      <span class="term">P(meeting | connect)</span>
+      <span class="op">=</span>
+      <span class="eq">EV_enroll</span>
+    </div>
+
+    <div class="chart-card">
+      <svg viewBox="0 0 780 220" role="img" aria-label="Value per dial declining across dial position, with a floor line, a value axis, and three sequence lengths">
+        <line x1="90" y1="15" x2="90" y2="190" style="stroke:var(--border-soft); stroke-width:1.3" />
+        <path d="M84,22 L90,14 L96,22" style="fill:none; stroke:var(--border-soft); stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round" />
+        <text x="38" y="102" text-anchor="middle" transform="rotate(-90 38 102)" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; letter-spacing:0.08em; fill:var(--text-faint);">VALUE PER DIAL</text>
+
+        <line x1="90" y1="150" x2="740" y2="150" style="stroke:#f59e0b; stroke-width:1.4; stroke-dasharray:5 4; opacity:0.75" />
+        <text x="94" y="141" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; fill:#fbbf24;">FLOOR: v(none_fresh, dial 4)</text>
+
+        <polyline points="90,25 162.2,40 234.4,55 306.7,68 378.9,80 451.1,92 523.3,105 595.6,118 667.8,132 740,145" style="fill:none; stroke:var(--accent-strong); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round" />
+        <polyline points="90,35 162.2,55 234.4,75 306.7,95 378.9,115 451.1,145" style="fill:none; stroke:var(--text-muted); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; opacity:0.8" />
+        <polyline points="90,40 162.2,70 234.4,105 306.7,148" style="fill:none; stroke:#fbbf24; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round" />
+
+        <circle cx="740" cy="145" r="3.5" style="fill:var(--accent-strong)" />
+        <circle cx="451.1" cy="145" r="3.5" style="fill:var(--text-muted)" />
+        <circle cx="306.7" cy="148" r="3.5" style="fill:#fbbf24" />
+
+        <text x="700" y="132" text-anchor="end" style="font-family:'JetBrains Mono',monospace; font-size:13.8px; fill:var(--accent-strong); font-weight:600;">seq_10</text>
+        <text x="451.1" y="132" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.8px; fill:var(--text-muted); font-weight:600;">seq_6</text>
+        <text x="306.7" y="170" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.8px; fill:#fbbf24; font-weight:600;">seq_4</text>
+
+        <g style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">
+          <text x="90" y="200" text-anchor="middle">1</text>
+          <text x="162.2" y="200" text-anchor="middle">2</text>
+          <text x="234.4" y="200" text-anchor="middle">3</text>
+          <text x="306.7" y="200" text-anchor="middle">4</text>
+          <text x="378.9" y="200" text-anchor="middle">5</text>
+          <text x="451.1" y="200" text-anchor="middle">6</text>
+          <text x="523.3" y="200" text-anchor="middle">7</text>
+          <text x="595.6" y="200" text-anchor="middle">8</text>
+          <text x="667.8" y="200" text-anchor="middle">9</text>
+          <text x="740" y="200" text-anchor="middle">10</text>
+        </g>
+        <text x="415" y="209" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; letter-spacing:0.08em; fill:var(--text-faint);">DIAL POSITION</text>
+      </svg>
+      <p class="chart-caption">Illustrative: each segment has its own dial-by-dial curve. A cell keeps dialing only while the next dial is still worth more than the floor; where it crosses is where the cap snaps to 4, 6, or 10.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 9 : EV & Points -->
+  <section class="slide" data-slide="9">
+    <div class="eyebrow">09 / Ranker</div>
+    <h1 class="slide-title">Points break the tie</h1>
+
+    <div class="formula-strip">
+      <span class="term">EV_enroll</span>
+      <span class="op">&times;</span>
+      <span class="term">points</span>
+      <span class="op">=</span>
+      <span class="eq">EV_pts</span>
+    </div>
+
+    <div class="points-grid">
+      <div class="ptile">
+        <span class="ptile-tag">Cold</span>
+        <span class="ptile-value">6</span>
+        <p class="ptile-desc">Median imputed value for a fresh, unscored lead.</p>
+      </div>
+      <div class="ptile">
+        <span class="ptile-tag">Prior opp</span>
+        <span class="ptile-value text">= opp value</span>
+        <p class="ptile-desc">Priced directly off whatever's already listed on the Opportunity.</p>
+      </div>
+      <div class="ptile highlight">
+        <span class="ptile-tag">IPA Top&#8209;500</span>
+        <span class="ptile-value">20</span>
+        <p class="ptile-desc">Flat override: same points regardless of deal size.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRANSITION : into Contact Picker -->
+  <section class="slide">
+    <div class="transition-wrap">
+      <span class="transition-eyebrow">Up next</span>
+      <h1 class="transition-title">Contact Picker</h1>
+      <div class="pipeline-row">
+        <div class="pipe-box">Data<br>Analysis</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box">Ranker</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box active">Contact<br>Picker</div>
+        <span class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <div class="pipe-box">Sequencer</div>
+      </div>
+      <p class="transition-desc">A score ranks accounts. This is how it picks the one person to actually enroll.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 10 : Contact Picker - filters -->
+  <section class="slide" data-slide="10">
+    <div class="eyebrow">10 / Contact Picker</div>
+    <h1 class="slide-title">What gets filtered out</h1>
+
+    <div class="two-col">
+      <div class="breaks-card">
+        <div class="breaks-title">Account filter: exclude</div>
+        <div class="breaks-list">
+          <div class="breaks-item"><span class="x-dot"></span>Junk / Do Not Contact / Rep Opt-Out <span class="muted">: never enters the queue, SQL-level</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Stage 1 not run <span class="muted">: hard veto, cold/fresh/disqualified only</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Meeting already booked this period</div>
+          <div class="breaks-item"><span class="x-dot"></span>Account marked dead <span class="muted">: Under 10 / different ERP</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Open Interested/Other still waiting on Warm</div>
+          <div class="breaks-item"><span class="x-dot"></span>Top DM blocked <span class="muted">: POC:Yes + lifetime Not Interested</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>POC bad-timing hold <span class="muted">: pending follow-up</span></div>
+        </div>
+      </div>
+
+      <div class="breaks-card">
+        <div class="breaks-title">Contact filter: exclude</div>
+        <div class="breaks-list">
+          <div class="breaks-item"><span class="x-dot"></span>Wrong Contact / No Longer with Company <span class="muted">: lifetime, discovery</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Not Interested, cold accounts only <span class="muted">: lifetime</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Hung Up / Already Have a Solution <span class="muted">: this period only</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Give-up <span class="muted">: GU:Yes, permanent</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Pending warm follow-up <span class="muted">: skip until due</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Redirected OPEN person <span class="muted">: POC:No, Warm handles it</span></div>
+          <div class="breaks-item"><span class="x-dot"></span>Stage 2 dropped <span class="muted">: S2:No</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footnote-row">
+      <div class="footnote"><b>Live-only, never cached:</b> account or prospect already active in a Nooks sequence.</div>
+      <div class="footnote"><b>Budget, not an exclude:</b> daily cap reached stops the fill: it doesn't remove any specific account.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11 : Contact Picker - priority -->
+  <section class="slide" data-slide="11">
+    <div class="eyebrow">11 / Contact Picker</div>
+    <h1 class="slide-title">Who wins, within an account</h1>
+
+    <div class="steps">
+      <div class="step-row">
+        <div class="step-chip">01</div>
+        <div class="step-text">
+          <p class="step-name">Lead</p>
+          <p class="step-desc">Unconverted, or converted this period.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">02</div>
+        <div class="step-text">
+          <p class="step-name">Last on opp</p>
+          <p class="step-desc">The prior-opp roster.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">03</div>
+        <div class="step-text">
+          <p class="step-name">OCR decision-maker</p>
+          <p class="step-desc">Flagged on the Opportunity Contact Role, not already caught by #2.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">04</div>
+        <div class="step-text">
+          <p class="step-name">Last-completed-period Interested</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">05</div>
+        <div class="step-text">
+          <p class="step-name">Stage 2 approved</p>
+          <p class="step-desc">S2:Yes: or, tied, whoever we last connected with on this account.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="fallback-card">
+      <span class="fallback-title">Fallback if nobody matches 1&ndash;5</span>
+      <div class="fallback-branch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+        Stage 2 already ran on this account &rarr; <b>account is done, "no one left."</b>
+      </div>
+      <div class="fallback-branch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+        Otherwise &rarr; <b>go run Stage 2, find a person.</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12 : Sequencer - prep + write-back, combined -->
+  <section class="slide" data-slide="12">
+    <div class="eyebrow">12 / Sequencer</div>
+    <h1 class="slide-title">Right before enroll, and what gets written back</h1>
+
+    <div class="two-col">
+      <div class="compare-card">
+        <span class="compare-tag">ZoomInfo verification</span>
+        <p class="compare-def">Confirms the contact still works there, and backfills email or phone if either is missing.</p>
+        <div class="seq-detail">
+          <div class="seq-branch yes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            <span><b>Still there</b>: continues to Nooks enroll</span>
+          </div>
+          <div class="seq-branch no">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            <span><b>Left the company</b>: skipped, same as No Longer with Company; moves to the next person on the account</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="breaks-card">
+        <div class="breaks-title">Account Notes</div>
+        <div class="breaks-list">
+          <div class="breaks-item"><span class="tag-key">S1</span> Stage 1 claim <span class="muted">: "Yes FS, QBO:yes, B:yes, QuickBooks"</span></div>
+          <div class="breaks-item"><span class="tag-key">S1:CLO</span> one-line account research <span class="muted">: from the Opportunity's loss reason, toolstack, close date, contact roles; closed-lost/churned only, written once per account</span></div>
+          <div class="breaks-item"><span class="tag-key">OPP</span> first names on the last closed deal <span class="muted">: "OPP:Laura, Mark"</span></div>
+          <div class="breaks-item"><span class="tag-key">S2</span> Stage 2 already ran <span class="muted">: "09/2026 S2:Yes" or "S2:None"</span></div>
+        </div>
+      </div>
+
+      <div class="breaks-card">
+        <div class="breaks-title">Contact Notes</div>
+        <div class="breaks-list">
+          <div class="breaks-item"><span class="tag-key">S2</span> this person's verdict <span class="muted">: "S2:Yes" (approve) or "S2:No" (drop)</span></div>
+          <div class="breaks-item"><span class="tag-key">POC</span> person of contact <span class="muted">: "POC:Yes" + Not Interested ends the account; "POC:No" on Wrong Contact/NLWC</span></div>
+          <div class="breaks-item"><span class="tag-key">GU</span> give-up <span class="muted">: "GU:Yes" releases the hold, skips this person</span></div>
+        </div>
+      </div>
+
+      <div class="breaks-card">
+        <div class="breaks-title">Personalization</div>
+        <div class="breaks-list">
+          <div class="breaks-item"><span class="tag-key">Lead</span> source at convert <span class="muted">: "Lead:Google Ads / Cancelled"</span></div>
+          <div class="breaks-item"><span class="tag-key">FU</span> warm follow-up reason, &le;80 chars <span class="muted">: "FU:Warm MM/YYYY (bad timing, checking back after renewal)"</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="footnote" style="margin-top:14px; border:none; padding-left:0;">Every line lives inside a <span class="tag-key">[GTM]</span> block the app owns: it never edits human text, and a rep's own notes stay exactly where they left them.</p>
+  </section>
+
+  <!-- SLIDE 13 : Sequencer - end-to-end fill workflow (planned) -->
+  <section class="slide" data-slide="13">
+    <div class="eyebrow">13 / Sequencer</div>
+    <h1 class="slide-title">How the day fills, end to end</h1>
+
+    <div class="steps" style="margin-bottom:28px;">
+      <div class="step-row">
+        <div class="step-chip">01</div>
+        <div class="step-text">
+          <p class="step-name">Clear follow-ups</p>
+          <p class="step-desc">Every follow-up that's due gets considered first, before anything else.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">02</div>
+        <div class="step-text">
+          <p class="step-name">Convert leads</p>
+          <p class="step-desc">Today's leads convert and sequence next.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-chip">03</div>
+        <div class="step-text">
+          <p class="step-name">Stage 1 / Stage 2: only as needed to fill the cap</p>
+          <p class="step-desc">Qualifies just enough people to keep enrolling, without waiting on a full review pass.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-card" style="max-width:820px;">
+      <span class="compare-tag">Doesn't block on review</span>
+      <div class="seq-detail">
+        <div class="seq-branch no">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+          <span><b>Stage 1 needs review</b>: skip it, auto-enroll the next candidate instead of waiting on Sophie</span>
+        </div>
+        <div class="seq-branch yes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+          <span><b>Stage 2 finds one S2:Yes</b>: stop there and run it. Once the priority list has no one left, every S2:Yes contact is equally good: it only takes one to fill the slot</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 14 : Reporting - SQO points waterfall by rep -->
+  <section class="slide" data-slide="14">
+    <div class="eyebrow">14 / Reporting</div>
+    <h1 class="slide-title">Where SQO points moved, month by month</h1>
+
+    <div class="chart-card wide">
+      <svg viewBox="0 0 1298 562" role="img" aria-label="Waterfall analysis of SQO points by rep, June through September" id="wfSvg">
+
+  <g>
+    <rect x="118" y="7" width="12" height="12" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1"/>
+    <text x="136" y="17" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; fill:var(--text-faint);">Month total</text>
+    <rect x="236" y="7" width="12" height="12" rx="2" style="fill:var(--accent-strong)"/>
+    <text x="254" y="17" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; fill:var(--text-faint);">Increase</text>
+    <rect x="336" y="7" width="12" height="12" rx="2" style="fill:var(--neg)"/>
+    <text x="354" y="17" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; fill:var(--text-faint);">Decrease</text>
+  </g>
+<text x="0" y="84" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Angela</text>
+<line x1="118" y1="126.0" x2="1278" y2="126.0" style="stroke:var(--border); stroke-width:1"/>
+<rect class="wf-hit" data-tip="Angela: June: 74 pts" x="118.0" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="118.0" y="96.4" width="57.3" height="29.6" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="146.6" y="91.4" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">74</text>
+<rect class="wf-hit" data-tip="Angela: Dial-volume effect: −9.6 pts (→ 64.4)" x="179.3" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="179.3" y="96.4" width="57.3" height="3.8" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Connect-rate effect: −20.6 pts (→ 43.8)" x="240.5" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="240.5" y="100.2" width="57.3" height="8.2" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Meeting-rate effect: +67.2 pts (→ 111.0)" x="301.8" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="301.8" y="81.6" width="57.3" height="26.9" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Qualify-rate effect: +4.1 pts (→ 115.1)" x="363.1" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="363.1" y="80.0" width="57.3" height="1.6" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Points-mix effect: +10.9 pts (→ 126.0)" x="424.3" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="424.3" y="75.6" width="57.3" height="4.4" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: July: 126 pts" x="485.6" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="485.6" y="75.6" width="57.3" height="50.4" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="514.2" y="70.6" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">126</text>
+<line x1="483.6" y1="30.0" x2="483.6" y2="128.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Dial-volume effect: −15.1 pts (→ 110.9)" x="546.8" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="546.8" y="75.6" width="57.3" height="6.0" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Connect-rate effect: +41.1 pts (→ 152.1)" x="608.1" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="608.1" y="65.2" width="57.3" height="16.5" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Meeting-rate effect: −93.3 pts (→ 58.8)" x="669.4" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="669.4" y="65.2" width="57.3" height="37.3" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Qualify-rate effect: +4.2 pts (→ 63.0)" x="730.6" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="730.6" y="100.8" width="57.3" height="1.7" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Points-mix effect: +5.0 pts (→ 68.0)" x="791.9" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="791.9" y="98.8" width="57.3" height="2.0" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: August: 68 pts" x="853.2" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="853.2" y="98.8" width="57.3" height="27.2" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="881.8" y="93.8" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">68</text>
+<line x1="851.2" y1="30.0" x2="851.2" y2="128.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Dial-volume effect: −38.8 pts (→ 29.2)" x="914.4" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="914.4" y="98.8" width="57.3" height="15.5" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Connect-rate effect: −13.0 pts (→ 16.2)" x="975.7" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="975.7" y="114.3" width="57.3" height="5.2" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Meeting-rate effect: +3.2 pts (→ 19.4)" x="1036.9" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1036.9" y="118.2" width="57.3" height="1.3" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: Qualify-rate effect: no change" x="1098.2" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-hit" data-tip="Angela: Points-mix effect: −19.4 pts (→ 0.0)" x="1159.5" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1159.5" y="118.2" width="57.3" height="7.8" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Angela: September (MTD): 0 pts" x="1220.7" y="34.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<text x="1249.4" y="121.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">0</text>
+<line x1="1218.7" y1="30.0" x2="1218.7" y2="128.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<text x="0" y="206" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Max</text>
+<line x1="118" y1="248.0" x2="1278" y2="248.0" style="stroke:var(--border); stroke-width:1"/>
+<rect class="wf-hit" data-tip="Max: June: 132 pts" x="118.0" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="118.0" y="195.2" width="57.3" height="52.8" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="146.6" y="190.2" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">132</text>
+<rect class="wf-hit" data-tip="Max: Dial-volume effect: +14.9 pts (→ 146.9)" x="179.3" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="179.3" y="189.2" width="57.3" height="6.0" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Connect-rate effect: +19.7 pts (→ 166.6)" x="240.5" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="240.5" y="181.4" width="57.3" height="7.9" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Meeting-rate effect: −51.1 pts (→ 115.5)" x="301.8" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="301.8" y="181.4" width="57.3" height="20.4" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Qualify-rate effect: +7.1 pts (→ 122.6)" x="363.1" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="363.1" y="199.0" width="57.3" height="2.8" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Points-mix effect: −13.6 pts (→ 109.0)" x="424.3" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="424.3" y="199.0" width="57.3" height="5.4" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: July: 109 pts" x="485.6" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="485.6" y="204.4" width="57.3" height="43.6" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="514.2" y="199.4" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">109</text>
+<line x1="483.6" y1="152.0" x2="483.6" y2="250.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Dial-volume effect: −69.2 pts (→ 39.8)" x="546.8" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="546.8" y="204.4" width="57.3" height="27.7" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Connect-rate effect: +9.0 pts (→ 48.8)" x="608.1" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="608.1" y="228.5" width="57.3" height="3.6" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Meeting-rate effect: +29.0 pts (→ 77.9)" x="669.4" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="669.4" y="216.9" width="57.3" height="11.6" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Qualify-rate effect: −2.4 pts (→ 75.5)" x="730.6" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="730.6" y="216.9" width="57.3" height="1.0" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Points-mix effect: +29.5 pts (→ 105.0)" x="791.9" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="791.9" y="206.0" width="57.3" height="11.8" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: August: 105 pts" x="853.2" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="853.2" y="206.0" width="57.3" height="42.0" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="881.8" y="201.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">105</text>
+<line x1="851.2" y1="152.0" x2="851.2" y2="250.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Dial-volume effect: −53.5 pts (→ 51.5)" x="914.4" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="914.4" y="206.0" width="57.3" height="21.4" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Connect-rate effect: −16.5 pts (→ 35.0)" x="975.7" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="975.7" y="227.4" width="57.3" height="6.6" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Meeting-rate effect: +7.0 pts (→ 42.0)" x="1036.9" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1036.9" y="231.2" width="57.3" height="2.8" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Qualify-rate effect: +4.7 pts (→ 46.7)" x="1098.2" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1098.2" y="229.3" width="57.3" height="1.9" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: Points-mix effect: −23.7 pts (→ 23.0)" x="1159.5" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1159.5" y="229.3" width="57.3" height="9.5" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Max: September (MTD): 23 pts" x="1220.7" y="156.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1220.7" y="238.8" width="57.3" height="9.2" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="1249.4" y="233.8" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">23</text>
+<line x1="1218.7" y1="152.0" x2="1218.7" y2="250.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<text x="0" y="328" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Sydney</text>
+<line x1="118" y1="370.0" x2="1278" y2="370.0" style="stroke:var(--border); stroke-width:1"/>
+<rect class="wf-hit" data-tip="Sydney: June: 161 pts" x="118.0" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="118.0" y="305.6" width="57.3" height="64.4" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="146.6" y="300.6" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">161</text>
+<rect class="wf-hit" data-tip="Sydney: Dial-volume effect: +11.6 pts (→ 172.6)" x="179.3" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="179.3" y="301.0" width="57.3" height="4.6" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Connect-rate effect: +5.3 pts (→ 177.8)" x="240.5" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="240.5" y="298.9" width="57.3" height="2.1" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Meeting-rate effect: −26.3 pts (→ 151.5)" x="301.8" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="301.8" y="298.9" width="57.3" height="10.5" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Qualify-rate effect: +9.5 pts (→ 161.0)" x="363.1" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="363.1" y="305.6" width="57.3" height="3.8" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Points-mix effect: −9.0 pts (→ 152.0)" x="424.3" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="424.3" y="305.6" width="57.3" height="3.6" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: July: 152 pts" x="485.6" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="485.6" y="309.2" width="57.3" height="60.8" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="514.2" y="304.2" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">152</text>
+<line x1="483.6" y1="274.0" x2="483.6" y2="372.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Dial-volume effect: −94.7 pts (→ 57.3)" x="546.8" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="546.8" y="309.2" width="57.3" height="37.9" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Connect-rate effect: −4.5 pts (→ 52.8)" x="608.1" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="608.1" y="347.1" width="57.3" height="1.8" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Meeting-rate effect: +51.7 pts (→ 104.5)" x="669.4" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="669.4" y="328.2" width="57.3" height="20.7" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Qualify-rate effect: no change" x="730.6" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-hit" data-tip="Sydney: Points-mix effect: +42.5 pts (→ 147.0)" x="791.9" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="791.9" y="311.2" width="57.3" height="17.0" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: August: 147 pts" x="853.2" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="853.2" y="311.2" width="57.3" height="58.8" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="881.8" y="306.2" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">147</text>
+<line x1="851.2" y1="274.0" x2="851.2" y2="372.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Dial-volume effect: −116.9 pts (→ 30.1)" x="914.4" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="914.4" y="311.2" width="57.3" height="46.7" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Connect-rate effect: −7.9 pts (→ 22.3)" x="975.7" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="975.7" y="357.9" width="57.3" height="3.1" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Meeting-rate effect: −22.3 pts (→ 0.0)" x="1036.9" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1036.9" y="361.1" width="57.3" height="8.9" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<rect class="wf-hit" data-tip="Sydney: Qualify-rate effect: no change" x="1098.2" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-hit" data-tip="Sydney: Points-mix effect: no change" x="1159.5" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-hit" data-tip="Sydney: September (MTD): 0 pts" x="1220.7" y="278.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<text x="1249.4" y="365.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">0</text>
+<line x1="1218.7" y1="274.0" x2="1218.7" y2="372.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<text x="0" y="450" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Sophie</text>
+<line x1="118" y1="492.0" x2="1278" y2="492.0" style="stroke:var(--border); stroke-width:1"/>
+<rect class="wf-hit" data-tip="Sophie: June: 139 pts" x="118.0" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="118.0" y="436.4" width="57.3" height="55.6" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="146.6" y="431.4" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">139</text>
+<text x="146.6" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Jun</text>
+<rect class="wf-hit" data-tip="Sophie: Dial-volume effect: +19.8 pts (→ 158.8)" x="179.3" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="179.3" y="428.5" width="57.3" height="7.9" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="207.9" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Dial</text>
+<rect class="wf-hit" data-tip="Sophie: Connect-rate effect: +8.3 pts (→ 167.1)" x="240.5" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="240.5" y="425.2" width="57.3" height="3.3" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="269.2" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Conn</text>
+<rect class="wf-hit" data-tip="Sophie: Meeting-rate effect: +51.3 pts (→ 218.4)" x="301.8" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="301.8" y="404.6" width="57.3" height="20.5" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="330.4" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Meet</text>
+<rect class="wf-hit" data-tip="Sophie: Qualify-rate effect: −9.9 pts (→ 208.5)" x="363.1" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="363.1" y="404.6" width="57.3" height="4.0" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<text x="391.7" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Qual</text>
+<rect class="wf-hit" data-tip="Sophie: Points-mix effect: −82.5 pts (→ 126.0)" x="424.3" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="424.3" y="408.6" width="57.3" height="33.0" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<text x="452.9" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Mix</text>
+<rect class="wf-hit" data-tip="Sophie: July: 126 pts" x="485.6" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="485.6" y="441.6" width="57.3" height="50.4" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="514.2" y="436.6" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">126</text>
+<line x1="483.6" y1="396.0" x2="483.6" y2="494.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<text x="514.2" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Jul</text>
+<rect class="wf-hit" data-tip="Sophie: Dial-volume effect: −53.1 pts (→ 72.9)" x="546.8" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="546.8" y="441.6" width="57.3" height="21.2" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<text x="575.5" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Dial</text>
+<rect class="wf-hit" data-tip="Sophie: Connect-rate effect: +4.6 pts (→ 77.5)" x="608.1" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="608.1" y="461.0" width="57.3" height="1.8" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="636.7" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Conn</text>
+<rect class="wf-hit" data-tip="Sophie: Meeting-rate effect: +2.6 pts (→ 80.2)" x="669.4" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="669.4" y="459.9" width="57.3" height="1.1" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="698.0" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Meet</text>
+<rect class="wf-hit" data-tip="Sophie: Qualify-rate effect: +3.8 pts (→ 84.0)" x="730.6" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="730.6" y="458.4" width="57.3" height="1.5" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="759.3" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Qual</text>
+<rect class="wf-hit" data-tip="Sophie: Points-mix effect: +56.0 pts (→ 140.0)" x="791.9" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="791.9" y="436.0" width="57.3" height="22.4" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="820.5" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Mix</text>
+<rect class="wf-hit" data-tip="Sophie: August: 140 pts" x="853.2" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="853.2" y="436.0" width="57.3" height="56.0" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="881.8" y="431.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">140</text>
+<line x1="851.2" y1="396.0" x2="851.2" y2="494.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<text x="881.8" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Aug</text>
+<rect class="wf-hit" data-tip="Sophie: Dial-volume effect: −96.0 pts (→ 44.0)" x="914.4" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="914.4" y="436.0" width="57.3" height="38.4" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<text x="943.1" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Dial</text>
+<rect class="wf-hit" data-tip="Sophie: Connect-rate effect: +0.9 pts (→ 44.8)" x="975.7" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="975.7" y="474.1" width="57.3" height="0.3" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="1004.3" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Conn</text>
+<rect class="wf-hit" data-tip="Sophie: Meeting-rate effect: −4.8 pts (→ 40.0)" x="1036.9" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1036.9" y="474.1" width="57.3" height="1.9" rx="2" style="fill:var(--neg); stroke:none; pointer-events:none;"/>
+<text x="1065.6" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Meet</text>
+<rect class="wf-hit" data-tip="Sophie: Qualify-rate effect: no change" x="1098.2" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<text x="1126.8" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Qual</text>
+<rect class="wf-hit" data-tip="Sophie: Points-mix effect: +16.0 pts (→ 56.0)" x="1159.5" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1159.5" y="469.6" width="57.3" height="6.4" rx="2" style="fill:var(--accent-strong); stroke:none; pointer-events:none;"/>
+<text x="1188.1" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Mix</text>
+<rect class="wf-hit" data-tip="Sophie: September (MTD): 56 pts" x="1220.7" y="400.0" width="57.3" height="92.0" style="fill:transparent;"/>
+<rect class="wf-bar" x="1220.7" y="469.6" width="57.3" height="22.4" rx="2" style="fill:var(--surface-raised); stroke:var(--border-soft); stroke-width:1; pointer-events:none;"/>
+<text x="1249.4" y="464.6" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; fill:var(--text-strong); pointer-events:none;">56</text>
+<line x1="1218.7" y1="396.0" x2="1218.7" y2="494.0" style="stroke:var(--border); stroke-width:1; stroke-dasharray:2 3; opacity:0.6; pointer-events:none;"/>
+<text x="1249.4" y="506.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:10.6px; fill:var(--text-faint); pointer-events:none;">Sep</text>
+</svg>
+      <div class="wf-tooltip" id="wfTooltip"></div>
+      <p class="chart-caption">Each rep's SQO points, bridged month to month across five effects: dial volume, connect rate, meeting rate, qualify rate, and points-mix (deal size). Green = effect pushed points up; red = pulled them down. Hover any column for the exact number.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 15 : Reporting - cell mix by rep -->
+  <section class="slide" data-slide="15">
+    <div class="eyebrow">15 / Reporting</div>
+    <h1 class="slide-title">SQO points, cell mix by rep</h1>
+    <div class="chart-card wide">
+      <svg viewBox="0 0 1312 512" role="img" aria-label="SQO points cell mix by rep and month">
+<rect x="46" y="13" width="10" height="10" rx="2" style="fill:var(--accent-strong)"/>
+<text x="60" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Closed-lost</text>
+<rect x="164" y="13" width="10" height="10" rx="2" style="fill:#a78bfa"/>
+<text x="178" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Churned</text>
+<rect x="282" y="13" width="10" height="10" rx="2" style="fill:#fbbf24"/>
+<text x="296" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Disqualified</text>
+<rect x="400" y="13" width="10" height="10" rx="2" style="fill:#2dd4bf"/>
+<text x="414" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Event-first</text>
+<rect x="518" y="13" width="10" height="10" rx="2" style="fill:#71717a"/>
+<text x="532" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Prior-interested</text>
+<rect x="636" y="13" width="10" height="10" rx="2" style="fill:#38bdf8"/>
+<text x="650" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Fresh</text>
+<text x="46" y="46" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Sophie</text>
+<line x1="46" y1="256" x2="636" y2="256" style="stroke:var(--border); stroke-width:1"/>
+<rect x="106.0" y="205.5" width="92" height="50.5" style="fill:var(--accent-strong);" />
+<rect x="106.0" y="184.4" width="92" height="21.1" style="fill:#fbbf24;" />
+<rect x="106.0" y="178.1" width="92" height="6.3" style="fill:#2dd4bf;" />
+<rect x="106.0" y="109.7" width="92" height="68.4" style="fill:#38bdf8;" />
+<text x="152.0" y="103.7" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">139</text>
+<text x="152.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jun</text>
+<rect x="226.0" y="189.7" width="92" height="66.3" style="fill:var(--accent-strong);" />
+<rect x="226.0" y="186.5" width="92" height="3.2" style="fill:#fbbf24;" />
+<rect x="226.0" y="177.1" width="92" height="9.5" style="fill:#2dd4bf;" />
+<rect x="226.0" y="123.4" width="92" height="53.7" style="fill:#38bdf8;" />
+<text x="272.0" y="117.4" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">126</text>
+<text x="272.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jul</text>
+<rect x="346.0" y="189.7" width="92" height="66.3" style="fill:var(--accent-strong);" />
+<rect x="346.0" y="168.6" width="92" height="21.1" style="fill:#a78bfa;" />
+<rect x="346.0" y="108.6" width="92" height="60.0" style="fill:#38bdf8;" />
+<text x="392.0" y="102.6" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">140</text>
+<text x="392.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Aug</text>
+<rect x="466.0" y="249.7" width="92" height="6.3" style="fill:var(--accent-strong);" />
+<rect x="466.0" y="197.1" width="92" height="52.6" style="fill:#38bdf8;" />
+<text x="512.0" y="191.1" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">56</text>
+<text x="512.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Sep</text>
+<text x="676" y="46" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Sydney</text>
+<line x1="676" y1="256" x2="1266" y2="256" style="stroke:var(--border); stroke-width:1"/>
+<rect x="736.0" y="86.5" width="92" height="169.5" style="fill:#38bdf8;" />
+<text x="782.0" y="80.5" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">161</text>
+<text x="782.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jun</text>
+<rect x="856.0" y="234.9" width="92" height="21.1" style="fill:var(--accent-strong);" />
+<rect x="856.0" y="69.7" width="92" height="165.3" style="fill:#38bdf8;" />
+<text x="902.0" y="63.7" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">177</text>
+<text x="902.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jul</text>
+<rect x="976.0" y="208.6" width="92" height="47.4" style="fill:var(--accent-strong);" />
+<rect x="976.0" y="101.3" width="92" height="107.4" style="fill:#38bdf8;" />
+<text x="1022.0" y="95.3" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">147</text>
+<text x="1022.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Aug</text>
+<text x="1142.0" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">0</text>
+<text x="1142.0" y="272.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Sep</text>
+<text x="46" y="292" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Max</text>
+<line x1="46" y1="502" x2="636" y2="502" style="stroke:var(--border); stroke-width:1"/>
+<rect x="106.0" y="480.9" width="92" height="21.1" style="fill:#fbbf24;" />
+<rect x="106.0" y="363.1" width="92" height="117.9" style="fill:#38bdf8;" />
+<text x="152.0" y="357.1" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">132</text>
+<text x="152.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jun</text>
+<rect x="226.0" y="387.3" width="92" height="114.7" style="fill:#38bdf8;" />
+<text x="272.0" y="381.3" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">109</text>
+<text x="272.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jul</text>
+<rect x="346.0" y="391.5" width="92" height="110.5" style="fill:#38bdf8;" />
+<text x="392.0" y="385.5" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">105</text>
+<text x="392.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Aug</text>
+<rect x="466.0" y="477.8" width="92" height="24.2" style="fill:#38bdf8;" />
+<text x="512.0" y="471.8" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">23</text>
+<text x="512.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Sep</text>
+<text x="676" y="292" style="font-family:'Geist Sans',sans-serif; font-size:16.2px; font-weight:600; fill:var(--text-strong);">Angela</text>
+<line x1="676" y1="502" x2="1266" y2="502" style="stroke:var(--border); stroke-width:1"/>
+<rect x="736.0" y="424.1" width="92" height="77.9" style="fill:#38bdf8;" />
+<text x="782.0" y="418.1" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">74</text>
+<text x="782.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jun</text>
+<rect x="856.0" y="495.7" width="92" height="6.3" style="fill:#fbbf24;" />
+<rect x="856.0" y="369.4" width="92" height="126.3" style="fill:#38bdf8;" />
+<text x="902.0" y="363.4" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">126</text>
+<text x="902.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Jul</text>
+<rect x="976.0" y="430.4" width="92" height="71.6" style="fill:#38bdf8;" />
+<text x="1022.0" y="424.4" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">68</text>
+<text x="1022.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Aug</text>
+<text x="1142.0" y="496.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:13.1px; font-weight:600; fill:var(--text-strong);">0</text>
+<text x="1142.0" y="518.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.9px; fill:var(--text-faint);">Sep</text>
+</svg>
+      <p class="chart-caption">Same cell taxonomy as the Ranker segments: closed-lost, churned, disqualified, event-first, prior-interested, fresh. Every rep's monthly total here reconciles exactly to their waterfall total on the prior slide.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 16 : Reporting - rate metrics by rep, new definition -->
+  <section class="slide" data-slide="16">
+    <div class="eyebrow">16 / Reporting</div>
+    <h1 class="slide-title">Connect &amp; meeting rate, redefined</h1>
+    <div class="chart-card wide">
+      <svg viewBox="0 0 1252 470" role="img" aria-label="Dials, connect rate, meeting rate, qualify rate, and average points by rep and month (new)">
+<rect x="20" y="13" width="10" height="10" rx="2" style="fill:var(--accent-strong)"/>
+<text x="34" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sophie</text>
+<rect x="150" y="13" width="10" height="10" rx="2" style="fill:#fbbf24"/>
+<text x="164" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sydney</text>
+<rect x="280" y="13" width="10" height="10" rx="2" style="fill:#38bdf8"/>
+<text x="294" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Max</text>
+<rect x="410" y="13" width="10" height="10" rx="2" style="fill:#a78bfa"/>
+<text x="424" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Angela</text>
+<text x="20" y="46" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Dials</text>
+<line x1="20" y1="235" x2="400" y2="235" style="stroke:var(--border); stroke-width:1"/>
+<rect x="36.0" y="91.8" width="14" height="143.2" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="53.0" y="163.7" width="14" height="71.3" rx="1.3" style="fill:#fbbf24;" />
+<rect x="70.0" y="130.8" width="14" height="104.2" rx="1.3" style="fill:#38bdf8;" />
+<rect x="87.0" y="103.1" width="14" height="131.9" rx="1.3" style="fill:#a78bfa;" />
+<text x="68.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="121.0" y="71.3" width="14" height="163.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="138.0" y="159.8" width="14" height="75.2" rx="1.3" style="fill:#fbbf24;" />
+<rect x="155.0" y="119.1" width="14" height="115.9" rx="1.3" style="fill:#38bdf8;" />
+<rect x="172.0" y="120.3" width="14" height="114.7" rx="1.3" style="fill:#a78bfa;" />
+<text x="153.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="206.0" y="140.3" width="14" height="94.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="223.0" y="206.7" width="14" height="28.4" rx="1.3" style="fill:#fbbf24;" />
+<rect x="240.0" y="192.7" width="14" height="42.4" rx="1.3" style="fill:#38bdf8;" />
+<rect x="257.0" y="134.0" width="14" height="101.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="238.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="291.0" y="205.2" width="14" height="29.8" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="308.0" y="232.3" width="14" height="2.7" rx="1.3" style="fill:#fbbf24;" />
+<rect x="325.0" y="214.2" width="14" height="20.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="342.0" y="191.7" width="14" height="43.3" rx="1.3" style="fill:#a78bfa;" />
+<text x="323.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="436" y="46" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Connect rate (1/account)</text>
+<line x1="436" y1="235" x2="816" y2="235" style="stroke:var(--border); stroke-width:1"/>
+<rect x="452.0" y="143.2" width="14" height="91.8" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="469.0" y="114.8" width="14" height="120.2" rx="1.3" style="fill:#fbbf24;" />
+<rect x="486.0" y="125.9" width="14" height="109.1" rx="1.3" style="fill:#38bdf8;" />
+<rect x="503.0" y="161.5" width="14" height="73.5" rx="1.3" style="fill:#a78bfa;" />
+<text x="484.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="537.0" y="139.1" width="14" height="95.9" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="554.0" y="109.2" width="14" height="125.8" rx="1.3" style="fill:#fbbf24;" />
+<rect x="571.0" y="101.5" width="14" height="133.5" rx="1.3" style="fill:#38bdf8;" />
+<rect x="588.0" y="180.6" width="14" height="54.4" rx="1.3" style="fill:#a78bfa;" />
+<text x="569.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="622.0" y="137.4" width="14" height="97.6" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="639.0" y="125.0" width="14" height="110.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="656.0" y="74.6" width="14" height="160.4" rx="1.3" style="fill:#38bdf8;" />
+<rect x="673.0" y="158.9" width="14" height="76.1" rx="1.3" style="fill:#a78bfa;" />
+<text x="654.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="707.0" y="115.2" width="14" height="119.8" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="724.0" y="194.2" width="14" height="40.8" rx="1.3" style="fill:#fbbf24;" />
+<rect x="741.0" y="111.8" width="14" height="123.2" rx="1.3" style="fill:#38bdf8;" />
+<rect x="758.0" y="201.6" width="14" height="33.4" rx="1.3" style="fill:#a78bfa;" />
+<text x="739.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="852" y="46" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Meeting rate (per connect-acct)</text>
+<line x1="852" y1="235" x2="1232" y2="235" style="stroke:var(--border); stroke-width:1"/>
+<rect x="868.0" y="185.6" width="14" height="49.4" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="885.0" y="143.0" width="14" height="92.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="902.0" y="169.6" width="14" height="65.4" rx="1.3" style="fill:#38bdf8;" />
+<rect x="919.0" y="187.1" width="14" height="47.9" rx="1.3" style="fill:#a78bfa;" />
+<text x="900.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="953.0" y="170.0" width="14" height="65.0" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="970.0" y="151.7" width="14" height="83.3" rx="1.3" style="fill:#fbbf24;" />
+<rect x="987.0" y="193.0" width="14" height="42.0" rx="1.3" style="fill:#38bdf8;" />
+<rect x="1004.0" y="123.4" width="14" height="111.6" rx="1.3" style="fill:#a78bfa;" />
+<text x="985.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="1038.0" y="164.7" width="14" height="70.3" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="1055.0" y="71.3" width="14" height="163.7" rx="1.3" style="fill:#fbbf24;" />
+<rect x="1072.0" y="166.7" width="14" height="68.3" rx="1.3" style="fill:#38bdf8;" />
+<rect x="1089.0" y="192.7" width="14" height="42.3" rx="1.3" style="fill:#a78bfa;" />
+<text x="1070.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="1123.0" y="182.9" width="14" height="52.1" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="1140.0" y="235.0" width="14" height="0.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="1157.0" y="162.5" width="14" height="72.5" rx="1.3" style="fill:#38bdf8;" />
+<rect x="1174.0" y="138.8" width="14" height="96.2" rx="1.3" style="fill:#a78bfa;" />
+<text x="1155.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="20" y="271" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Qualify rate</text>
+<line x1="20" y1="460" x2="400" y2="460" style="stroke:var(--border); stroke-width:1"/>
+<rect x="36.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="53.0" y="303.1" width="14" height="156.9" rx="1.3" style="fill:#fbbf24;" />
+<rect x="70.0" y="314.2" width="14" height="145.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="87.0" y="310.0" width="14" height="150.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="68.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="121.0" y="300.9" width="14" height="159.1" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="138.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#fbbf24;" />
+<rect x="155.0" y="305.2" width="14" height="154.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="172.0" y="304.4" width="14" height="155.6" rx="1.3" style="fill:#a78bfa;" />
+<text x="153.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="206.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="223.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#fbbf24;" />
+<rect x="240.0" y="310.0" width="14" height="150.0" rx="1.3" style="fill:#38bdf8;" />
+<rect x="257.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#a78bfa;" />
+<text x="238.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="291.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="308.0" y="460.0" width="14" height="0.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="325.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#38bdf8;" />
+<rect x="342.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#a78bfa;" />
+<text x="323.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="436" y="271" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Avg points / SQO</text>
+<line x1="436" y1="460" x2="816" y2="460" style="stroke:var(--border); stroke-width:1"/>
+<rect x="452.0" y="344.1" width="14" height="115.9" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="469.0" y="342.6" width="14" height="117.4" rx="1.3" style="fill:#fbbf24;" />
+<rect x="486.0" y="350.0" width="14" height="110.0" rx="1.3" style="fill:#38bdf8;" />
+<rect x="503.0" y="364.1" width="14" height="95.9" rx="1.3" style="fill:#a78bfa;" />
+<text x="484.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="537.0" y="390.0" width="14" height="70.0" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="554.0" y="338.5" width="14" height="121.5" rx="1.3" style="fill:#fbbf24;" />
+<rect x="571.0" y="362.2" width="14" height="97.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="588.0" y="355.0" width="14" height="105.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="569.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="622.0" y="343.3" width="14" height="116.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="639.0" y="304.1" width="14" height="155.9" rx="1.3" style="fill:#fbbf24;" />
+<rect x="656.0" y="323.9" width="14" height="136.2" rx="1.3" style="fill:#38bdf8;" />
+<rect x="673.0" y="346.7" width="14" height="113.3" rx="1.3" style="fill:#a78bfa;" />
+<text x="654.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="707.0" y="296.7" width="14" height="163.3" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="724.0" y="460.0" width="14" height="0.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="741.0" y="392.9" width="14" height="67.1" rx="1.3" style="fill:#38bdf8;" />
+<rect x="758.0" y="460.0" width="14" height="0.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="739.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+</svg>
+      <p class="chart-caption">Connect rate and meeting rate now count one connect per account (not per touch): connect rate drops accordingly and meeting rate rises, since the same meetings now divide by a smaller, cleaner connect count. Qualify rate and avg points are unchanged by this redefinition. Dials sit on their own scale so they stay readable next to the rate panels without dwarfing them.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 17 : Reporting - rate metrics by rep, original definition -->
+  <section class="slide" data-slide="17">
+    <div class="eyebrow">17 / Reporting</div>
+    <h1 class="slide-title">Connect &amp; meeting rate, original definition</h1>
+    <div class="chart-card wide">
+      <svg viewBox="0 0 1252 470" role="img" aria-label="Dials, connect rate, meeting rate, qualify rate, and average points by rep and month (original)">
+<rect x="20" y="13" width="10" height="10" rx="2" style="fill:var(--accent-strong)"/>
+<text x="34" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sophie</text>
+<rect x="150" y="13" width="10" height="10" rx="2" style="fill:#fbbf24"/>
+<text x="164" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sydney</text>
+<rect x="280" y="13" width="10" height="10" rx="2" style="fill:#38bdf8"/>
+<text x="294" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Max</text>
+<rect x="410" y="13" width="10" height="10" rx="2" style="fill:#a78bfa"/>
+<text x="424" y="22" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Angela</text>
+<text x="20" y="46" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Dials</text>
+<line x1="20" y1="235" x2="400" y2="235" style="stroke:var(--border); stroke-width:1"/>
+<rect x="36.0" y="91.8" width="14" height="143.2" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="53.0" y="163.7" width="14" height="71.3" rx="1.3" style="fill:#fbbf24;" />
+<rect x="70.0" y="130.8" width="14" height="104.2" rx="1.3" style="fill:#38bdf8;" />
+<rect x="87.0" y="103.1" width="14" height="131.9" rx="1.3" style="fill:#a78bfa;" />
+<text x="68.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="121.0" y="71.3" width="14" height="163.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="138.0" y="159.8" width="14" height="75.2" rx="1.3" style="fill:#fbbf24;" />
+<rect x="155.0" y="119.1" width="14" height="115.9" rx="1.3" style="fill:#38bdf8;" />
+<rect x="172.0" y="120.3" width="14" height="114.7" rx="1.3" style="fill:#a78bfa;" />
+<text x="153.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="206.0" y="140.3" width="14" height="94.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="223.0" y="206.7" width="14" height="28.4" rx="1.3" style="fill:#fbbf24;" />
+<rect x="240.0" y="192.7" width="14" height="42.4" rx="1.3" style="fill:#38bdf8;" />
+<rect x="257.0" y="134.0" width="14" height="101.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="238.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="291.0" y="205.2" width="14" height="29.8" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="308.0" y="232.3" width="14" height="2.7" rx="1.3" style="fill:#fbbf24;" />
+<rect x="325.0" y="214.2" width="14" height="20.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="342.0" y="191.7" width="14" height="43.3" rx="1.3" style="fill:#a78bfa;" />
+<text x="323.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="436" y="46" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Connect rate (per touch)</text>
+<line x1="436" y1="235" x2="816" y2="235" style="stroke:var(--border); stroke-width:1"/>
+<rect x="452.0" y="100.5" width="14" height="134.5" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="469.0" y="99.2" width="14" height="135.8" rx="1.3" style="fill:#fbbf24;" />
+<rect x="486.0" y="104.6" width="14" height="130.4" rx="1.3" style="fill:#38bdf8;" />
+<rect x="503.0" y="110.9" width="14" height="124.1" rx="1.3" style="fill:#a78bfa;" />
+<text x="484.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="537.0" y="93.5" width="14" height="141.5" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="554.0" y="92.9" width="14" height="142.1" rx="1.3" style="fill:#fbbf24;" />
+<rect x="571.0" y="87.1" width="14" height="147.9" rx="1.3" style="fill:#38bdf8;" />
+<rect x="588.0" y="150.6" width="14" height="84.4" rx="1.3" style="fill:#a78bfa;" />
+<text x="569.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="622.0" y="84.5" width="14" height="150.5" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="639.0" y="105.4" width="14" height="129.6" rx="1.3" style="fill:#fbbf24;" />
+<rect x="656.0" y="53.6" width="14" height="181.4" rx="1.3" style="fill:#38bdf8;" />
+<rect x="673.0" y="119.2" width="14" height="115.8" rx="1.3" style="fill:#a78bfa;" />
+<text x="654.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="707.0" y="81.5" width="14" height="153.5" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="724.0" y="194.2" width="14" height="40.8" rx="1.3" style="fill:#fbbf24;" />
+<rect x="741.0" y="111.8" width="14" height="123.2" rx="1.3" style="fill:#38bdf8;" />
+<rect x="758.0" y="170.7" width="14" height="64.3" rx="1.3" style="fill:#a78bfa;" />
+<text x="739.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="852" y="46" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Meeting rate (per connect)</text>
+<line x1="852" y1="235" x2="1232" y2="235" style="stroke:var(--border); stroke-width:1"/>
+<rect x="868.0" y="201.3" width="14" height="33.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="885.0" y="153.6" width="14" height="81.4" rx="1.3" style="fill:#fbbf24;" />
+<rect x="902.0" y="180.4" width="14" height="54.6" rx="1.3" style="fill:#38bdf8;" />
+<rect x="919.0" y="206.7" width="14" height="28.3" rx="1.3" style="fill:#a78bfa;" />
+<text x="900.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="953.0" y="190.9" width="14" height="44.1" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="970.0" y="161.2" width="14" height="73.8" rx="1.3" style="fill:#fbbf24;" />
+<rect x="987.0" y="197.1" width="14" height="37.9" rx="1.3" style="fill:#38bdf8;" />
+<rect x="1004.0" y="163.2" width="14" height="71.8" rx="1.3" style="fill:#a78bfa;" />
+<text x="985.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="1038.0" y="189.4" width="14" height="45.6" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="1055.0" y="96.1" width="14" height="138.9" rx="1.3" style="fill:#fbbf24;" />
+<rect x="1072.0" y="174.6" width="14" height="60.4" rx="1.3" style="fill:#38bdf8;" />
+<rect x="1089.0" y="207.2" width="14" height="27.8" rx="1.3" style="fill:#a78bfa;" />
+<text x="1070.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="1123.0" y="194.3" width="14" height="40.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="1140.0" y="235.0" width="14" height="0.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="1157.0" y="162.5" width="14" height="72.5" rx="1.3" style="fill:#38bdf8;" />
+<rect x="1174.0" y="185.0" width="14" height="50.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="1155.5" y="250.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="20" y="271" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Qualify rate</text>
+<line x1="20" y1="460" x2="400" y2="460" style="stroke:var(--border); stroke-width:1"/>
+<rect x="36.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="53.0" y="303.1" width="14" height="156.9" rx="1.3" style="fill:#fbbf24;" />
+<rect x="70.0" y="314.2" width="14" height="145.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="87.0" y="310.0" width="14" height="150.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="68.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="121.0" y="300.9" width="14" height="159.1" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="138.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#fbbf24;" />
+<rect x="155.0" y="305.2" width="14" height="154.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="172.0" y="304.4" width="14" height="155.6" rx="1.3" style="fill:#a78bfa;" />
+<text x="153.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="206.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="223.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#fbbf24;" />
+<rect x="240.0" y="310.0" width="14" height="150.0" rx="1.3" style="fill:#38bdf8;" />
+<rect x="257.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#a78bfa;" />
+<text x="238.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="291.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="308.0" y="460.0" width="14" height="0.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="325.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#38bdf8;" />
+<rect x="342.0" y="293.3" width="14" height="166.7" rx="1.3" style="fill:#a78bfa;" />
+<text x="323.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+<text x="436" y="271" style="font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.03em; fill:var(--text-strong); font-weight:600;">Avg points / SQO</text>
+<line x1="436" y1="460" x2="816" y2="460" style="stroke:var(--border); stroke-width:1"/>
+<rect x="452.0" y="344.1" width="14" height="115.9" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="469.0" y="342.6" width="14" height="117.4" rx="1.3" style="fill:#fbbf24;" />
+<rect x="486.0" y="350.0" width="14" height="110.0" rx="1.3" style="fill:#38bdf8;" />
+<rect x="503.0" y="364.1" width="14" height="95.9" rx="1.3" style="fill:#a78bfa;" />
+<text x="484.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jun</text>
+<rect x="537.0" y="390.0" width="14" height="70.0" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="554.0" y="338.5" width="14" height="121.5" rx="1.3" style="fill:#fbbf24;" />
+<rect x="571.0" y="362.2" width="14" height="97.8" rx="1.3" style="fill:#38bdf8;" />
+<rect x="588.0" y="355.0" width="14" height="105.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="569.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Jul</text>
+<rect x="622.0" y="343.3" width="14" height="116.7" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="639.0" y="304.1" width="14" height="155.9" rx="1.3" style="fill:#fbbf24;" />
+<rect x="656.0" y="323.9" width="14" height="136.2" rx="1.3" style="fill:#38bdf8;" />
+<rect x="673.0" y="346.7" width="14" height="113.3" rx="1.3" style="fill:#a78bfa;" />
+<text x="654.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Aug</text>
+<rect x="707.0" y="296.7" width="14" height="163.3" rx="1.3" style="fill:var(--accent-strong);" />
+<rect x="724.0" y="460.0" width="14" height="0.0" rx="1.3" style="fill:#fbbf24;" />
+<rect x="741.0" y="392.9" width="14" height="67.1" rx="1.3" style="fill:#38bdf8;" />
+<rect x="758.0" y="460.0" width="14" height="0.0" rx="1.3" style="fill:#a78bfa;" />
+<text x="739.5" y="475.0" text-anchor="middle" style="font-family:'JetBrains Mono',monospace; font-size:11.2px; fill:var(--text-faint);">Sep</text>
+</svg>
+      <p class="chart-caption">The prior definition: connect rate counts every connect touch (an account dialed 3 times and connected twice counts 2, not 1); meeting rate divides by that same event count. Compare against the redefined version on the previous slide: connect rate reads higher here, meeting rate reads lower, for the same underlying activity.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 18 : Demo -->
+  <section class="slide" data-slide="18">
+    <div class="eyebrow">18 / Demo</div>
+    <h1 class="slide-title">Demo</h1>
+
+    <div class="demo-grid">
+      <div class="demo-col before">
+        <span class="demo-tag before">Before &middot; a cold account, by hand</span>
+        <p class="demo-intro">The crawl era: one rep, one browser tab, one account at a time.</p>
+        <div class="flow-col">
+          <div class="flow-step">Open the account, check the website's still live</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Crawl Stage 1 &middot; company fit, by hand</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Crawl Stage 2 &middot; find a contact, by hand</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Create &amp; enrich the contact in Salesforce</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Write notes by hand</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Sequence in Nooks, whatever order the list happened to be in</div>
+        </div>
+      </div>
+
+      <div class="demo-divider">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span>today</span>
+      </div>
+
+      <div class="demo-col after">
+        <span class="demo-tag after">Now &middot; the same account, end to end</span>
+        <p class="demo-intro">One pass, ranked by expected value, not batch order.</p>
+        <div class="flow-col">
+          <div class="flow-step">Ranker scores every cold account by EV_pts</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Contact Picker resolves who to enroll on the account</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">ZoomInfo confirms they still work there</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Notes write themselves back to Salesforce</div>
+          <div class="flow-arrow-v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+          <div class="flow-step">Enrolled into the right-length Nooks sequence, automatically</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <button class="chrome-counter" id="counterBtn" aria-haspopup="true" aria-expanded="false">
+    <span class="cur mono" id="curNum">01</span><span class="mono">/ 22</span><span class="caret">&#9650;</span>
+  </button>
+  <div class="slide-picker" id="slidePicker" hidden></div>
+  <div class="chrome-nav">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="nav-btn" id="nextBtn" aria-label="Next slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+  <div class="chrome-progress" id="progressBar"></div>
+
+</div>
+
+<script>
+  (function () {
+    var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+    var total = slides.length;
+    var idx = 0;
+
+    function slideLabel(slide, i) {
+      var eyebrow = slide.querySelector('.eyebrow');
+      var transTitle = slide.querySelector('.transition-title');
+      var h1 = slide.querySelector('.slide-title');
+      if (eyebrow) {
+        var parts = eyebrow.textContent.split('/');
+        return { num: (parts[0] || '').trim(), label: (h1 ? h1.textContent : (parts[1] || '')).trim() };
+      }
+      if (transTitle) {
+        return { num: '→', label: 'Transition: ' + transTitle.textContent.trim() };
+      }
+      return { num: String(i + 1), label: h1 ? h1.textContent.trim() : ('Slide ' + (i + 1)) };
+    }
+
+    var picker = document.getElementById('slidePicker');
+    var pickerItems = [];
+    slides.forEach(function (s, i) {
+      var meta = slideLabel(s, i);
+      var btn = document.createElement('button');
+      btn.className = 'slide-picker-item';
+      btn.innerHTML = '<span class="pnum">' + (i + 1) + '</span><span class="plabel">' + meta.label + '</span>' + (meta.num && meta.num !== String(i + 1) ? '<span class="pdim">' + meta.num + '</span>' : '');
+      btn.addEventListener('click', function () {
+        idx = i;
+        render();
+        closePicker();
+      });
+      picker.appendChild(btn);
+      pickerItems.push(btn);
+    });
+
+    function openPicker() {
+      picker.hidden = false;
+      document.getElementById('counterBtn').setAttribute('aria-expanded', 'true');
+      var current = pickerItems[idx];
+      if (current) current.scrollIntoView({ block: 'nearest' });
+    }
+    function closePicker() {
+      picker.hidden = true;
+      document.getElementById('counterBtn').setAttribute('aria-expanded', 'false');
+    }
+    document.getElementById('counterBtn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (picker.hidden) openPicker(); else closePicker();
+    });
+    document.addEventListener('click', function (e) {
+      if (!picker.hidden && !picker.contains(e.target)) closePicker();
+    });
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closePicker();
+    });
+
+    function render() {
+      slides.forEach(function (s, i) {
+        s.classList.toggle('active', i === idx);
+        s.classList.toggle('exit-left', i < idx);
+      });
+      document.getElementById('curNum').textContent = String(idx + 1).padStart(2, '0');
+      document.getElementById('progressBar').style.width = (((idx + 1) / total) * 100) + '%';
+      document.getElementById('prevBtn').disabled = idx === 0;
+      document.getElementById('nextBtn').disabled = idx === total - 1;
+      pickerItems.forEach(function (btn, i) { btn.classList.toggle('current', i === idx); });
+    }
+
+    function go(delta) {
+      var next = idx + delta;
+      if (next < 0 || next >= total) return;
+      idx = next;
+      render();
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', function () { go(-1); });
+    document.getElementById('nextBtn').addEventListener('click', function () { go(1); });
+    document.getElementById('zoneLeft').addEventListener('click', function () { go(-1); });
+    document.getElementById('zoneRight').addEventListener('click', function () { go(1); });
+
+    window.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { go(1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(-1); e.preventDefault(); }
+    });
+
+    render();
+
+    try {
+      if (window.claude && window.claude.hot) {
+        window.claude.hot.snapshot(function () { return { idx: idx }; });
+        var boot = function (data) {
+          if (data && typeof data.idx === 'number' && data.idx < total) { idx = data.idx; render(); }
+        };
+        window.claude.hot.ready ? window.claude.hot.ready(boot) : boot(window.claude.hot.data || {});
+      }
+    } catch (e) {}
+
+    var wfTooltip = document.getElementById('wfTooltip');
+    var wfCard = wfTooltip ? wfTooltip.closest('.chart-card') : null;
+    if (wfTooltip && wfCard) {
+      var wfHits = wfCard.querySelectorAll('.wf-hit');
+      wfHits.forEach(function (hit) {
+        hit.addEventListener('mouseenter', function () {
+          wfTooltip.textContent = hit.getAttribute('data-tip');
+          wfTooltip.classList.add('show');
+        });
+        hit.addEventListener('mousemove', function (e) {
+          var rect = wfCard.getBoundingClientRect();
+          var x = e.clientX - rect.left;
+          var y = e.clientY - rect.top;
+          var tipW = wfTooltip.offsetWidth || 160;
+          if (x + tipW + 16 > rect.width) x -= (tipW + 16);
+          else x += 14;
+          wfTooltip.style.left = x + 'px';
+          wfTooltip.style.top = (y - 8) + 'px';
+        });
+        hit.addEventListener('mouseleave', function () {
+          wfTooltip.classList.remove('show');
+        });
+      });
+    }
+  })();
+</script>
+
+
+</body></html>
